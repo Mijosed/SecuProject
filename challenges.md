@@ -20,6 +20,16 @@ GET /image?filename=../../../../../../../etc/passwd%00.jpg
 
 #### Recommandations en terme de sécurité : 
 
+- Ne jamais utiliser directement les données fournies par l’utilisateur pour construire un chemin.
+
+- Utiliser des index ou identifiants plutôt que des noms de fichiers soumis par l’utilisateur.
+
+- Valider strictement l’entrée utilisateur avec une whitelist (liste blanche) des valeurs autorisées.
+
+- Utiliser un environnement chroot ou des politiques d’accès pour restreindre l’accès au système de fichiers.
+
+Sources : Cours + https://portswigger.net/web-security/file-path-traversal#how-to-prevent-a-path-traversal-attack 
+
 ---
 
 
@@ -50,7 +60,11 @@ POST /web-serveur/ch12/?inc=php://filter/convert.base64-encode/resource=config.p
 #### Recommandations en terme de sécurité :
 
 - Désactiver la fonction `php://filter` dans le fichier `php.ini`  
-- Mettre en place une liste blanche des fichiers autorisés
+- N’autoriser que des noms de fichiers prédéfinis via une whitelist et un mapping interne.
+- Désactiver les wrappers et les inclusions par URL en mettant allow_url_include = Off.
+- Utiliser realpath() et des chemins absolus pour garantir que les inclusions restent dans le répertoire autorisé.
+
+Sources : https://owasp.org/www-community/vulnerabilities/PHP_File_Inclusion
 
 ---
 
@@ -83,6 +97,12 @@ Ensuite via la page **Contact** insérer ce code afin de récupérer le token
 
 
 #### Recommandations en terme de sécurité :
+
+- Validation stricte du jeton CSRF côté serveur à chaque requête.
+- Ne pas se fier uniquement au côté client pour la vérification du jeton.
+- Filtrer et valider les données des formulaires avant traitement.
+
+Sources : https://portswigger.net/web-security/csrf/preventing
 
 ---
 
@@ -130,6 +150,12 @@ On va donc changer le mail + récupérer le nouveau token CSRF en interceptant a
 
 #### Recommandations en terme de sécurité :
 
+- Lier le jeton CSRF à la session utilisateur pour éviter qu’il soit réutilisé par un attaquant.
+- Régénérer un token unique pour chaque action sensible afin de limiter la fenêtre d’attaque.
+- Activer l’attribut SameSite sur les cookies pour empêcher leur envoi dans des requêtes cross-site non autorisées.
+
+Sources : https://portswigger.net/web-security/csrf/preventing
+
 ---
 
 # 5. CSRF where Referer validation depends on header being present
@@ -168,6 +194,12 @@ On va donc insérer le script ci dessous qui retire le referer du html et rempla
 
 #### Recommandations en terme de sécurité :
 
+- Lier le jeton CSRF à la session utilisateur pour éviter qu’il soit réutilisé par un attaquant.
+- Régénérer un token unique pour chaque action sensible afin de limiter la fenêtre d’attaque.
+- Activer l’attribut SameSite sur les cookies pour empêcher leur envoi dans des requêtes cross-site non autorisées.
+
+Sources : https://portswigger.net/web-security/csrf/preventing
+
 ---
 
 # 6. JWT - Jeton révoqué
@@ -197,6 +229,11 @@ curl -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3
 #### Recommandations en terme de sécurité :
 
 - Privilégier l'utilisation d'une *white list* plutôt qu'une *black list*
+- Implémenter un mécanisme de révocation de jetons (par ex. stockage des jetons invalidés côté serveur ou système de blacklist dynamique).
+- Utiliser des jetons avec une durée de vie courte (exp), pour limiter la fenêtre d’attaque en cas de fuite.
+- Ne pas stocker d’informations sensibles dans le payload du JWT en clair.
+
+Sources : https://auth0.com/blog/jwt-best-practices/
 
 ---
 
@@ -221,6 +258,11 @@ sqlmap -r req --dump
 ![Payload/Screenshot/Solved](images/chall7.png)
 
 #### Recommandations en terme de sécurité :
+
+Utiliser des requêtes préparées (paramétrées) au lieu de concaténer directement les valeurs dans la requête SQL.
+Côté serveur, n’accepter que des valeurs prévues pour les paramètres (via validation / whitelist).
+
+Sources : https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html
 
 ---
 
@@ -268,6 +310,11 @@ On peut voir dans l'erreur au sein de la réponse que c'est du Handlebars. En ch
 
 #### Recommandations en terme de sécurité :
 
+- Faire des tests automatiques qui envoient des chaînes bizarres (ex : `${{<%[%'"}}%)`) dans les entrées pour vérifier qu’aucune erreur de template ne survient.
+- Ne jamais afficher les messages d’erreur dans l’URL ou à l’utilisateur.
+
+Sources : https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Server%20Side%20Template%20Injection/README.md
+
 ---
 
 # 11. API - Mass Assigment
@@ -305,6 +352,16 @@ Cookie: session=...
 ![Solved](images/chall11.solved.png)
 
 #### Recommandations en terme de sécurité :
+
+- Maintenir une allowlist des champs modifiables par l’utilisateur.
+
+- Interdire toute modification des champs sensibles (statut, rôle, permissions, etc.).
+
+- Ne jamais mapper automatiquement les données client à l’objet de données interne.
+
+- Vérifier les droits d’accès avant d’appliquer une modification.
+
+Sources : https://owasp.org/API-Security/editions/2019/en/0xa6-mass-assignment
 
 
 
